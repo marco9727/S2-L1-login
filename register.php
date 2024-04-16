@@ -1,23 +1,18 @@
 <?php
+include_once __DIR__ . "/includes/init.php";
 
-include __DIR__ . "/includes/db.php";
+$user = [];
+$username = $_POST['username'] ?? '';
+$email = $_POST['email'] ?? '';
+$password = $_POST['password'] ?? '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $stmt = $pdo-> prepare("INSERT INTO users (username, email, password) VALUES (:username, :email, :password)");
-    $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':password', $password);
+    $stmt = $pdo->prepare("INSERT INTO users (username,email,password) VALUES (:username,:email,:password)");
+    $stmt->execute(['username' => $username, 'email' => $email, 'password' => password_hash($password, PASSWORD_DEFAULT)]);
 
-    try {
-        $stmt->execute();
-        echo "Registrazione completata con successo.";
-    } catch(PDOException $e) {
-        echo "Errore durante la registrazione: " . $e->getMessage();
-    }
+    header('Location: /esercizi/S2-L1-login/homepage.php');
+    exit;
 }
 
     

@@ -1,27 +1,24 @@
 <?php
-session_start();
-include __DIR__ . "/includes/db.php";
+include_once __DIR__ . "/includes/init.php";
+$errors = [];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+$username = $_POST['username'] ?? '';
+$password = $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username=:username ");
-    $stmt->bindParam(':username', $username);
-    
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $stmt = $pdo->prepare(" SELECT * FROM users WHERE username = :username ");
+    $stmt->execute(['username' => $username]);
 
-    if ($row) {
-        if (password_verify($password, $row['password'])) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['username'] = $row['username'];
-            header("Location: /esercizi/S2-L1-login/index.php");
+
+    $user_logged = $stmt->fetch();
+
+    if ($user_logged) {
+        if (password_verify($password, $user_logged['password'])) {
+            $_SESSION['id'] = $user_logged['id'];
+            header('Location: /esercizi/S2-L1-login/homepage.php');
         } else {
-            echo "Password errata.";
+            $errors['credentials'] = 'Invalid credentials';
         }
-    } else {
-        echo "Utente non trovato.";
     }
 }
 
